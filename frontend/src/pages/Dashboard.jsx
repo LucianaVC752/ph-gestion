@@ -61,7 +61,7 @@ export default function Dashboard() {
           <thead><tr><th>Concepto</th><th className="right">Valor</th></tr></thead>
           <tbody>
             {data.ingresos_por_concepto.map((c, i) => (
-              <tr key={i}><td>{c.concepto}</td><td className="right">{money(c.valor)}</td></tr>
+              <tr key={c.id}><td>{c.concepto}</td><td className="right">{money(c.valor)}</td></tr>
             ))}
             {data.ingresos_por_concepto.length === 0 && (
               <tr><td colSpan={2} style={{ color: "#6b7f90" }}>Sin facturación en este periodo.</td></tr>
