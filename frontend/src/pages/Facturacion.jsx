@@ -1,30 +1,19 @@
-import { useEffect, useState } from "react";
-import { api, money } from "../api.js";
-
+import { money } from "../api.js";
+import { useFacturacion } from "./hooks/usefacturacion.js";
 export default function Facturacion() {
-  const [facturas, setFacturas] = useState([]);
-  const [periodo, setPeriodo] = useState("2026-10");
-  const [conceptoId, setConceptoId] = useState("3");
-  const [periodoMasiva, setPeriodoMasiva] = useState("2026-12");
-  const [resultado, setResultado] = useState(null);
-  const [err, setErr] = useState("");
-
-  const cargar = async (p) => {
-    try { setFacturas((await api(`/api/facturacion?periodo=${p}`)).facturas); } catch (e) { setErr(e.message); }
-  };
-  useEffect(() => { cargar(periodo); }, [periodo]);
-
-  const generarMasiva = async (e) => {
-    e.preventDefault();
-    setErr(""); setResultado(null);
-    try {
-      const r = await api("/api/facturacion/masiva", {
-        method: "POST",
-        body: JSON.stringify({ periodo: periodoMasiva, concepto_id: Number(conceptoId) }),
-      });
-      setResultado(r);
-    } catch (e) { setErr(e.message); }
-  };
+  const {
+    facturas,
+    periodos,
+    periodo,
+    setPeriodo,
+    conceptoId,
+    setConceptoId,
+    periodoMasiva,
+    setPeriodoMasiva,
+    resultado,
+    err,
+    generarMasiva,
+  } = useFacturacion();
 
   return (
     <>
@@ -52,7 +41,7 @@ export default function Facturacion() {
         <div className="row" style={{ marginBottom: 12 }}>
           <div className="field"><label>Periodo</label>
             <select value={periodo} onChange={(e) => setPeriodo(e.target.value)}>
-              {["2026-07","2026-08","2026-09","2026-10"].map((p) => <option key={p}>{p}</option>)}
+              {periodos.map((p) => <option key={p} value={p}>{p}</option>)}
             </select>
           </div>
         </div>

@@ -12,6 +12,9 @@ function vencimientoDe(periodo) {
   return `${siguiente}-10`;
 }
 
+// Obtener los periodos existentes sin repetir (de más reciente a más antiguo)
+
+
 // Listado de facturas de un periodo.
 router.get("/", async (req, res) => {
   const condominioId = condominioDeLaPeticion(req);
@@ -28,6 +31,20 @@ router.get("/", async (req, res) => {
   sql += " ORDER BY i.identificacion, f.periodo";
   const { rows } = await query(sql, params);
   res.json({ facturas: rows });
+});
+
+router.get("/periodos", async (req, res) => {
+  const condominioId = condominioDeLaPeticion(req);
+  const { rows } = await query(
+    `SELECT DISTINCT periodo
+       FROM factura
+      WHERE condominio_id = $1
+      ORDER BY periodo DESC`,
+    [condominioId]
+  );
+
+  // Devolvemos un arreglo simple de strings: ["2026-12", "2026-10", ...]
+  res.json({ periodos: rows.map((r) => r.periodo) });
 });
 
 // Facturación masiva de una cuota extraordinaria repartida por coeficiente.
