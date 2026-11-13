@@ -1,9 +1,29 @@
 import { useEffect, useState } from "react";
 import { api, money } from "../api.js";
 
+const obtenerPeriodoActual = () => {
+  const hoy = new Date();
+  const anio = hoy.getFullYear();
+  const mes = String(hoy.getMonth() + 1).padStart(2, "0");
+  return `${anio}-${mes}`;
+};
+
+const generarPeriodos = (cantidad = 6) => {
+  const lista = [];
+  const hoy = new Date();
+  for (let i = cantidad - 1; i >= 0; i--) {
+    const fecha = new Date(hoy.getFullYear(), hoy.getMonth() - i, 1);
+    const anio = fecha.getFullYear();
+    const mes = String(fecha.getMonth() + 1).padStart(2, "0");
+    lista.push(`${anio}-${mes}`);
+  }
+  return lista;
+};
+
 export default function Dashboard() {
   const [data, setData] = useState(null);
-  const [periodo, setPeriodo] = useState("2026-10");
+  const [periodo, setPeriodo] = useState(obtenerPeriodoActual);
+  const periodosDisponibles = generarPeriodos(6);
   const [err, setErr] = useState("");
 
   const cargar = async (p) => {
@@ -14,13 +34,18 @@ export default function Dashboard() {
       setErr(e.message);
     }
   };
-  useEffect(() => { cargar(periodo); }, [periodo]);
+
+  useEffect(() => {
+    cargar(periodo);
+  }, [periodo]);
 
   if (err) return <div className="err">{err}</div>;
   if (!data) return <p>Cargando...</p>;
 
-  // Total de ingresos facturados del periodo (suma de los conceptos).
-  const totalIngresos = data.ingresos_por_concepto.reduce((acc, c) => acc + c.valor, 0);
+  const totalIngresos = data.ingresos_por_concepto.reduce(
+    (acc, c) => acc + Number(c.valor || 0),
+    0
+  );
 
   return (
     <>
@@ -30,7 +55,7 @@ export default function Dashboard() {
           <div className="field">
             <label>Periodo</label>
             <select value={periodo} onChange={(e) => setPeriodo(e.target.value)}>
-              {["2026-06","2026-07","2026-08","2026-09","2026-10","2026-11"].map((p) => (
+              {periodosDisponibles.map((p) => (
                 <option key={p} value={p}>{p}</option>
               ))}
             </select>
@@ -42,17 +67,16 @@ export default function Dashboard() {
         <div className="kpi"><div className="label">Inmuebles</div><div className="value">{data.total_inmuebles}</div></div>
         <div className="kpi"><div className="label">Propietarios</div><div className="value">{data.total_propietarios}</div></div>
         <div className="kpi"><div className="label">Residentes</div><div className="value">{data.total_residentes}</div></div>
-        <div className="kpi"><div className="label">Cartera total</div><div className="value">{money(data.cartera_total)}</div></div>
-        <div className="kpi"><div className="label">Facturación periodo</div><div className="value">{money(data.facturacion_periodo)}</div></div>
         <div className="kpi"><div className="label">Recaudo periodo</div><div className="value">{money(data.recaudo_periodo)}</div></div>
         <div className="kpi">
           <div className="label">% recuperación cartera</div>
           <div className="value">{data.porcentaje_recuperacion == null ? "—" : data.porcentaje_recuperacion + "%"}</div>
         </div>
-        <div className="kpi">
-          <div className="label">Total ingresos del periodo</div>
-          <div className="value">{"$ " + totalIngresos}</div>
-        </div>
+
+        {/* Fila inferior expandida */}
+        <div className="kpi wide"><div className="label">Cartera total</div><div className="value">{money(data.cartera_total)}</div></div>
+        <div className="kpi wide"><div className="label">Facturación periodo</div><div className="value">{money(data.facturacion_periodo)}</div></div>
+        <div className="kpi wide"><div className="label">Total ingresos del periodo</div><div className="value">{money(totalIngresos)}</div></div>
       </div>
 
       <div className="panel">
@@ -60,7 +84,7 @@ export default function Dashboard() {
         <table>
           <thead><tr><th>Concepto</th><th className="right">Valor</th></tr></thead>
           <tbody>
-            {data.ingresos_por_concepto.map((c, i) => (
+            {data.ingresos_por_concepto.map((c) => (
               <tr key={c.id}><td>{c.concepto}</td><td className="right">{money(c.valor)}</td></tr>
             ))}
             {data.ingresos_por_concepto.length === 0 && (
