@@ -13,15 +13,62 @@ a { color: var(--accent); text-decoration: none; }
 .sidebar nav a.active, .sidebar nav a:hover { background: #163a5c; color: #fff; }
 .sidebar .logout { margin: 20px 18px 0; }
 .sidebar .logout button { width: 100%; }
-.main { flex: 1; padding: 24px 30px; }
+.main { flex: 1; padding: 24px 30px; min-width: 0; }
 .topbar { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 18px; }
 .topbar h2 { margin: 0; color: var(--ink); }
 .topbar .who { color: var(--muted); font-size: 13px; }
-.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 14px; margin-bottom: 22px; }
-.kpi { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; }
-.kpi .label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .4px; }
-.kpi .value { font-size: 22px; font-weight: 700; color: var(--ink); margin-top: 6px; }
+
+/* Grid de 15 columnas: 5 tarjetas arriba (span 3) y 3 expandidas abajo (span 5) */
+.cards {
+  display: grid;
+  grid-template-columns: repeat(15, 1fr);
+  gap: 14px;
+  margin-bottom: 22px;
+}
+.kpi {
+  grid-column: span 3;
+  background: var(--card);
+  min-width: 0;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.kpi.wide {
+  grid-column: span 5;
+  order: 2;
+}
+.kpi .label {
+  font-size: 12px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .4px;
+}
+.kpi .value {
+  font-weight: 700;
+  color: var(--ink);
+  margin-top: 8px;
+  font-size: clamp(1.25rem, 1.6vw, 1.65rem);
+  white-space: nowrap;
+}
+.kpi.wide .value {
+  font-size: clamp(1.4rem, 1.9vw, 1.85rem);
+}
 .kpi .value.alert { color: var(--red); }
+
+/* Adaptación para pantallas medianas y móviles */
+@media (max-width: 1150px) {
+  .cards { grid-template-columns: repeat(6, 1fr); }
+  .kpi { grid-column: span 2; }
+  .kpi.wide { grid-column: span 3; }
+}
+@media (max-width: 680px) {
+  .cards { grid-template-columns: 1fr; }
+  .kpi, .kpi.wide { grid-column: span 1; }
+}
+
 table { width: 100%; border-collapse: collapse; background: var(--card); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
 th, td { text-align: left; padding: 9px 12px; font-size: 13px; border-bottom: 1px solid var(--border); }
 th { background: #eef3f8; color: var(--ink); }

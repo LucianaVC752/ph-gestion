@@ -33,6 +33,7 @@ router.get("/", async (req, res) => {
 // Detalle de un inmueble.
 router.get("/:id", async (req, res) => {
   const condominioId = condominioDeLaPeticion(req);
+  console.log({ inmuebleId: req.params.id, condominioId });
   const { rows } = await query(
     `SELECT i.*, p.nombres AS propietario, r.nombres AS residente
        FROM inmueble i
